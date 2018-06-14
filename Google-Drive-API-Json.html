@@ -1,6 +1,7 @@
 <!--
 I spent ages digging through looking for s simple example of how to LIST/EDIT/Create google drive text Google drive text files
 I was using it to save and edit Json Files as you can see from the filetypes I use
+Also looks like there is something odd with the sign out button not triggering a signout - !
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -107,17 +108,6 @@ body,html{
     </div>
 
 
-      <!--Add buttons to initiate auth sequence and sign out-->
-
-
-
-
-
-
-
-
-
-
     <script  src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
@@ -127,8 +117,8 @@ body,html{
       var CURRENT_FILE_ID=""
 
       // Client ID and API key from the Developer Console
-      var CLIENT_ID = '196875539919-7eha86e5lnprafgflm9hinumb8l7hoio.apps.googleusercontent.com';
-      var API_KEY = 'AIzaSyC748xekHyJ2kWxmpYnTgUVp2oA-MtoD-0';
+      var CLIENT_ID = 'YOUR CLIENT ID HERE';  //i.e. 1968755asdfasdfasdfgflm9hinumb8l7hoio.apps.googleusercontent.com
+      var API_KEY = 'YOUR API KEY HERE'; // i.e. AIzaasdfasdYnTgUVasdfsdfD-0
       // Array of API discovery doc URLs for APIs used by the quickstart
       var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
       // Authorization scopes required by the API; multiple scopes can be
@@ -356,4 +346,3 @@ function GoogleDriveListFiles(){
 
   </body>
 </html>
->
