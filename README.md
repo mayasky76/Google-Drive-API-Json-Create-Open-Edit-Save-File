@@ -9,3 +9,8 @@ This was a fix to running an online version of  a Chrome OS app I  developed and
 You will need to setup API credentials here and fill in the gaps in the code for it to work for you
 
 https://console.cloud.google.com/apis/
+
+
+It Does still need a bit of tidy up - but hopefully will help someone else out
+
+Iain
