@@ -1,0 +1,359 @@
+<!--
+I spent ages digging through looking for s simple example of how to LIST/EDIT/Create google drive text Google drive text files
+I was using it to save and edit Json Files as you can see from the filetypes I use
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" />
+<style>
+/* Just styles to make this look nice not required*/
+body,html{
+    height:100%;
+}
+
+#GoogleDriveFileList{
+  width:100%;
+  height:400px;
+  overflow-y: scroll;
+  background-color: #fafafa;
+  border:1px solid #000;
+}
+
+.fileBtn{
+  width:100%;
+  border:1px solid #ccc;
+  background-color: #fff;
+  text-align: left;
+  padding:10px;
+  font-size: 0.7em
+}
+.fileBtn:hover{
+  background-color: #424242;
+  color: #fafafa;
+}
+
+#GoogleFileContents{
+  width:100%;
+  min-height: 400px;
+  padding: 10px;
+}
+
+</style>
+  </head>
+  <body>
+
+    <div class="container h-100">
+      <div class="row h-100 justify-content-center align-items-center">
+        <div class="row">
+          <div class="col-12">
+
+        <div class="row">
+        <div class="col-md-12 text-center">
+          <svg viewBox="0 0 139 120.4" width="50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><radialGradient id="a" cx="-254.81979" cy="705.83588" gradientTransform="matrix(2.827 1.6322 -1.6322 2.827 2092.1199 -1494.5786)" gradientUnits="userSpaceOnUse" r="82.978401"><stop offset="0" stop-color="#4387fd"/><stop offset=".65" stop-color="#3078f0"/><stop offset=".9099" stop-color="#2b72ea"/><stop offset="1" stop-color="#286ee6"/></radialGradient><radialGradient id="b" cx="-254.8174" cy="705.83691" gradientTransform="matrix(2.827 1.6322 -1.6322 2.827 2092.1199 -1494.5786)" gradientUnits="userSpaceOnUse" r="82.973"><stop offset="0" stop-color="#ffd24d"/><stop offset="1" stop-color="#f6c338"/></radialGradient><path d="m24.2 120.4-24.2-41.9 45.3-78.5 24.2 41.9z" fill="#0da960"/><path d="m24.2 120.4 24.2-41.9h90.6l-24.2 41.9z" fill="url(#a)"/><path d="m139 78.5h-48.4l-45.3-78.5h48.4z" fill="url(#b)"/><path d="m69.5 78.5h-21.1l10.5-18.3-34.7 60.2z" fill="#2d6fdd"/><path d="m90.6 78.5h48.4l-58.9-18.3z" fill="#e5b93c"/><path d="m58.9 60.2 10.6-18.3-24.2-41.9z" fill="#0c9b57"/></svg>
+<BR />
+
+          <button id="GoogleAuthorizeButton" style="display: none;" class="btn btn-info">
+            <i class="fab fa-google-drive"></i>
+            Authorize</button>
+
+            <button id="GoogleSignoutButton" style="display: none;" class="btn btn-info">
+            <i class="fab fa-google-drive"></i>
+              Sign Out</button>
+            </div>
+          </div>
+
+          <div id="loggedIn" style="display:none;">
+
+
+          <hr />
+          <div class="row">
+
+
+          <div class="col-8">
+              <input type="text" id="newFile" class="form-control" placeholder="Create New JSON File (.json will be appended)" />
+          </div>
+          <div class="col-4">
+              <button onclick="GoogleDriveCreateNewFile()" class="btn btn-danger">Create New File</button>
+          </div>
+    </div>
+<hr />
+
+
+
+              <div class="row">
+                <div class="col-6">
+
+                          <div id="GoogleDriveFileList"></div>
+
+</div>
+<div class="col-6">
+                      <textarea id="GoogleFileContents"></textarea>
+                      <button onclick="GoogleDriveSaveFileChanges()" class="btn btn-danger btn-block" >SAVE CHANGES</button>
+
+                </div>
+              </div>
+
+
+</div><div id="loggedIn" style="display:none;">
+
+
+    </div>
+
+
+      <!--Add buttons to initiate auth sequence and sign out-->
+
+
+
+
+
+
+
+
+
+
+    <script  src="https://code.jquery.com/jquery-3.3.1.min.js" ></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript">
+      var  CURRENT_FILE_OBJ={};
+      var CURRENT_FILE_ID=""
+
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '196875539919-7eha86e5lnprafgflm9hinumb8l7hoio.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyC748xekHyJ2kWxmpYnTgUVp2oA-MtoD-0';
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      // please NOTE to write a file to the drive you need THESE SCOPES
+      var SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', GoogleDriveInit);
+      }
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function GoogleDriveInit() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(GoogleSigninStatusHandler);
+
+          // Handle the initial sign-in state.
+          GoogleSigninStatusHandler(gapi.auth2.getAuthInstance().isSignedIn.get());
+
+          //Set the button click events
+          $("#GoogleAuthorizeButton").unbind().click(function(){  gapi.auth2.getAuthInstance().signIn(); console.log("Sign In")})
+          $("#GoogleSignoutButton").unbind().click(function(){  gapi.auth2.getAuthInstance().signOut(); console.log("Sign Out")})
+
+        });
+      }
+
+      /**
+       *  Toggles the sign in/ out buttons and writes the
+       *  List of files that match the query - you can remove /amend the query as needed.
+       */
+      function GoogleSigninStatusHandler(isSignedIn) {
+        if (isSignedIn) {
+          $("#GoogleAuthorizeButton").hide()
+          $("#GoogleSignoutButton").show() // some reason the google signout button does not work ?
+$("#loggedIn").show()
+
+            $('#GoogleDriveFileList').html(""); // Clear out the file list container
+              GoogleDriveListFiles()
+        } else {
+          $("#GoogleAuthorizeButton").show()
+        $("#GoogleSignoutButton").hide()
+        $("#loggedIn").hide()
+          $('#GoogleDriveFileList').html(""); // empty the file list element
+        }
+      }
+
+
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+
+function GoogleDriveListFiles(){
+  // get the lilst of files from google drive
+  gapi.client.drive.files.list({
+    'pageSize': 100,  // number of pages to show
+    'fields': "nextPageToken, files(id, name)",
+    'q' : "name contains '.json'", // this limits it to .json files
+    }).then(function(response) {
+    var files = response.result.files;
+    console.log(response)
+    if (files && files.length > 0) {
+      for (var i = 0; i < files.length; i++) {
+        var file = files[i];
+        $("#GoogleDriveFileList").append(`<button class="fileBtn" id="`+file.id+`">`+file.name+`</button>`);
+      }
+
+      $(".fileBtn").unbind().click(function(){
+        GoogleDriveReadFileContents($(this).attr("id"));
+      })
+    } else {
+    $("#GoogleDriveFileList").append(`<div class="alert alert-danger"><h2>Sorry No files Found</h2></div>`)
+    }
+  });
+}
+
+
+  function GoogleDriveReadFileContents(file){
+  console.log(file);
+  var request = gapi.client.drive.files.get({
+        fileId: file,
+        alt: 'media'
+      })
+      request.then(function(response){
+          console.log(response); //response.body has the text content of the file
+          $("#GoogleFileContents").val(response.body);
+          filename=$("#"+file).text()
+          res= filename.replace(".json","")
+          $("#newFile").val(res)
+          CURRENT_FILE_OBJ=response;
+          CURRENT_FILE_ID=file;
+      },function(error){
+          console.error(error)
+      })
+      return request; //for batch request
+  }
+
+
+
+
+
+
+
+
+
+
+
+  function GoogleDriveCreateNewFile(){
+  newFilename=document.getElementById("newFile").value
+  if(newFilename==""){
+      alert("You need to add File Name");
+      return false;
+  }
+  GoogleDriveCreateNewJSONFile(newFilename+".json","{}")
+  }
+
+
+  function GoogleDriveCreateNewJSONFile(name,data,callback) {
+  const boundary = '-------314159265358979323846';
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const close_delim = "\r\n--" + boundary + "--";
+
+  const contentType = 'application/json';
+
+  var metadata = {
+      'name': name,
+      'mimeType': contentType
+    };
+
+    var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: ' + contentType + '\r\n\r\n' +
+        data +
+        close_delim;
+
+    var request = gapi.client.request({
+        'path': '/upload/drive/v3/files',
+        'method': 'POST',
+        'params': {'uploadType': 'multipart'},
+        'headers': {
+          'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+        },
+        'body': multipartRequestBody});
+    if (!callback) {
+      callback = function(file) {
+        console.log(file)
+        console.log("saved new" )
+        GoogleDriveInit()
+      };
+    }
+    request.execute(callback);
+  }
+
+
+  function GoogleDriveSaveFileChanges() {
+
+  console.log(CURRENT_FILE_ID)
+
+   fileID=CURRENT_FILE_ID;
+   fileMetadata=CURRENT_FILE_OBJ.headers;
+   data=$("#GoogleFileContents").val();
+
+
+  const boundary = '-------314159265358979323846';
+  const delimiter = "\r\n--" + boundary + "\r\n";
+  const close_delim = "\r\n--" + boundary + "--";
+
+  const contentType = 'application/json';
+
+  var metadata = {
+      'name': name,
+      'mimeType': contentType
+    };
+
+    var multipartRequestBody =
+        delimiter +
+        'Content-Type: application/json\r\n\r\n' +
+        JSON.stringify(metadata) +
+        delimiter +
+        'Content-Type: ' + contentType + '\r\n\r\n' +
+        data +
+        close_delim;
+
+    var request = gapi.client.request({
+        'path': '/upload/drive/v3/files/'+fileID,
+        'method': 'PATCH',
+        'params': {'uploadType': 'multipart'},
+        'headers': {
+          'Content-Type': 'multipart/related; boundary="' + boundary + '"'
+        },
+        'body': multipartRequestBody});
+
+      callback = function(file) {
+            console.log(file)
+                console.log("saved" )
+        GoogleDriveInit()
+
+    }
+    request.execute(callback);
+  }
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+
+
+  </body>
+</html>
+>
